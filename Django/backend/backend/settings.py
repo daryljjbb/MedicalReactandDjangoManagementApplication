@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,26 @@ SECRET_KEY = 'django-insecure-b#+5*r7+#*msz35)3-+wl9%kt^6d+nqnn*^mz59g(bw_jzj6qm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Add '*' to allow any host to access your backend while testing
+# 1. Allow the backend to run on Render's servers
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# 2. Allow your GitHub Pages site to talk to this backend
+CORS_ALLOWED_ORIGINS = [
+    "https://daryljjbb.github.io", # Your GitHub site
+    "http://localhost:3000",           # Still keep local for testing
+    "http://127.0.0.1:3000",
+]
+
+# For modern Django security, also add this:
+CSRF_TRUSTED_ORIGINS = [
+    "https://daryljjbb.github.io",
+]
+
+# ✅ This line is REQUIRED when using fetch(..., { credentials: 'include' })
+CORS_ALLOW_CREDENTIALS = True
+
+
 
 
 # Application definition
@@ -37,11 +58,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+     # Required for React & API
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'django_filters',
+    
+    # Your App
+    'my_app', 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Add CORS middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -115,3 +145,38 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Needed for deployment (GitHub/Render)
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        # This allows GET requests for everyone, 
+        # but requires login for POST, PUT, DELETE
+       "rest_framework.permissions.IsAuthenticatedOrReadOnly", 
+    ],
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 5,
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+# Change "None" to "Lax" for local development
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False 
+
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = False
