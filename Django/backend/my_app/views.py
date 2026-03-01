@@ -6,13 +6,13 @@ from rest_framework import filters # 1. Make sure this is imported
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
-from .models import Patient
+from .models import Patient, MedicalRecord
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import PatientSerializer
+from .serializers import PatientSerializer, MedicalRecordSerializer
 from rest_framework import viewsets
 
 # Create your views here.
@@ -75,6 +75,29 @@ class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
     permission_classes = [IsAuthenticated]
+
+
+# -------------------------------
+# Medical Record ViewSet
+# -------------------------------
+
+class MedicalRecordListCreateView(generics.ListCreateAPIView):
+    queryset = MedicalRecord.objects.all().order_by("-record_date")
+    serializer_class = MedicalRecordSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = ["diagnosis", "allergies", "treatment"]
+    ordering_fields = ["record_date"]
+    filterset_fields = ["patient"]  # ⭐ THIS IS REQUIRED To be under the specific patient it belongs to
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class MedicalRecordDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MedicalRecord.objects.all()
+    serializer_class = MedicalRecordSerializer
+
+
 
 
 @api_view(["GET"])

@@ -1,13 +1,28 @@
-import { useEffect, useState } from "react";
-import { fetchPatients, deletePatient, createPatient } from "../api/patients";
+import { useEffect, useState, useCallback} from "react";
+import { fetchPatients, fetchPatientById, deletePatient, createPatient } from "../api/patients";
 
-const usePatients = (isAuthenticated) => {
+const usePatients = (isAuthenticated, patientId = null) => {
   // Always store patients as an array
   const [patients, setPatients] = useState([]);
+  const [patient, setPatient] = useState(null); // For single patient view
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [authError, setAuthError] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [ordering, setOrdering] = useState("first_name");
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
 
   /**
    * Normalize API responses so `patients` is ALWAYS an array.
@@ -27,26 +42,54 @@ const usePatients = (isAuthenticated) => {
   /**
    * Load patients from API
    */
-  const loadPatients = async () => {
-    try {
-      setLoading(true);
-      setError("");
 
-      const data = await fetchPatients();
+  const loadPatients = useCallback(async () => {
+  try {
+    setLoading(true);
+    const data = await fetchPatients({
+    search: debouncedSearch || "",
+    ordering
+    });
 
-      // Normalize once here → the rest of the app stays clean
-      setPatients(normalizeList(data));
+    setPatients(normalizeList(data));
+  } catch (err) {
+    setError("Failed to load patients");
+  } finally {
+    setLoading(false);
+  }
+}, [debouncedSearch, ordering]);
 
-    } catch (err) {
-      setError("Failed to load patients");
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   useEffect(() => {
     loadPatients();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, debouncedSearch, ordering]);
+
+
+   // 🔄 NEW: Function to load a SINGLE customer
+  const loadSinglePatient = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const data = await fetchPatientById(patientId);
+      setPatient(data);
+    } catch (err) {
+      setError("Patient not found");
+    } finally {
+      setLoading(false);
+    }
+  }, [patientId]);
+
+  // 🚀 Trigger correct load logic
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (patientId) {
+        loadSinglePatient(); // Fetch one if ID exists
+      } else {
+        loadPatients();    // Otherwise fetch the list
+      }
+    }
+  }, [isAuthenticated, patientId, loadPatients, loadSinglePatient]);
 
   /**
    * Add a new patient
@@ -83,8 +126,13 @@ const usePatients = (isAuthenticated) => {
 
   return {
     patients,
+    patient, // ✨ Expose single patient
     loading,
     error,
+    search,
+    setSearch,
+    ordering,
+    setOrdering,
     authError,
     reload: loadPatients,
     removePatient,

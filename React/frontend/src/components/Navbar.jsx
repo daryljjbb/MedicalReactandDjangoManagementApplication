@@ -27,16 +27,7 @@ const NavigationBar = () => {
         
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            {/* Mobile-only nav links (since sidebar hides on mobile) */}
-            <Nav.Item>
-              <LinkContainer to="/patients">
-                <Nav.Link className="text-white">Patients</Nav.Link>
-              </LinkContainer>
-            </Nav.Item>
-          </Nav>
-          
+        <Navbar.Collapse id="basic-navbar-nav">         
           <Nav>
             <Button variant="outline-danger" size="sm" onClick={handleLogout}>
               Logout

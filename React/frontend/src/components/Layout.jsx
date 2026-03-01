@@ -1,31 +1,34 @@
 import NavigationBar from "./Navbar";
 import { Container, Row, Col, Nav } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { Outlet } from "react-router-dom"; // Add this
+import { Outlet } from "react-router-dom";
 
 export default function Layout() {
   return (
     <>
       <NavigationBar />
-      <Container fluid>
+      <Container fluid className="mt-3">
         <Row>
           {/* SIDEBAR */}
-          <Col md={2} className="">
+          <Col
+            md={2}
+            className="bg-light vh-100 p-3 shadow-sm d-none d-md-block"
+          >
             <Nav className="flex-column p-2">
               <LinkContainer to="/patients">
                 <Nav.Link>Patients</Nav.Link>
               </LinkContainer>
-              {/* ... other links */}
+              {/* Add more sidebar links here */}
             </Nav>
           </Col>
 
-          {/* MAIN CONTENT AREA */}
+          {/* MAIN CONTENT */}
           <Col md={10} className="p-4">
-            {/* This is where your Invoices or Patients pages will appear */}
-            <Outlet /> 
+            <Outlet />
           </Col>
         </Row>
       </Container>
     </>
   );
 }
+

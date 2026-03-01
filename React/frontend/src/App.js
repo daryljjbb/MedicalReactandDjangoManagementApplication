@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Patients from "./pages/Patients";
+import PatientDetailPage from "./pages/PatientDetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Registration";
-import Navbar from "./components/Navbar"; // Import Navbar
+import Layout from "./components/Layout";   // <-- IMPORTANT
 import useAuth from "./hooks/useAuth";
 import { Toaster } from "react-hot-toast";
 
@@ -13,24 +14,29 @@ function App() {
 
   return (
     <Router>
-      <Navbar /> {/* Navbar will now appear on every page if logged in */}
-      <div className="container">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} /> {/* Add this */}
-          
-          <Route 
-            path="/patients" 
-            element={isAuthenticated ? <Patients /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/" 
-            element={isAuthenticated ? <Navigate to="/patients" /> : <Navigate to="/login" />} 
-          />
-        </Routes>
-        <Toaster position="top-right" reverseOrder={false} />
-      </div>
-      
+      <Routes>
+
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected routes wrapped in Layout */}
+        <Route element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/patients/:id" element={<PatientDetailPage />} />
+          {/* Add more pages here */}
+        </Route>
+
+        {/* Default redirect */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? <Navigate to="/patients" /> : <Navigate to="/login" />
+          }
+        />
+      </Routes>
+
+      <Toaster position="top-right" reverseOrder={false} />
     </Router>
   );
 }
