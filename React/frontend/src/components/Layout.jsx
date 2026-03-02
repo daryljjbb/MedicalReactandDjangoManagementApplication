@@ -18,6 +18,9 @@ export default function Layout() {
               <LinkContainer to="/patients">
                 <Nav.Link>Patients</Nav.Link>
               </LinkContainer>
+               <LinkContainer to="/doctors">
+                <Nav.Link>Doctors</Nav.Link>
+              </LinkContainer>
               {/* Add more sidebar links here */}
             </Nav>
           </Col>

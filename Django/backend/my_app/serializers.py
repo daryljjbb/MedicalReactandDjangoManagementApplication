@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Patient, MedicalRecord
+from .models import Patient, MedicalRecord, Doctor
 
 # ----------------------------------------------------------------
 # Patient Serializer
@@ -23,3 +23,14 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
         model = MedicalRecord
         fields = "__all__"
         read_only_fields = ["user"]
+
+
+# ----------------------------------------------------------------
+# Doctor Serializer
+# ----------------------------------------------------------------
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = "__all__"  # includes all model fields automatically
+        read_only_fields = ["user"]
+
