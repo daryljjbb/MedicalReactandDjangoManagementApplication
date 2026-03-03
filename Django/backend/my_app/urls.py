@@ -14,6 +14,8 @@ urlpatterns = [
     path("medical-records/<int:pk>/", views.MedicalRecordDetailView.as_view()),
     path('doctors/', views.DoctorListCreateView.as_view()),
     path("doctors/<int:pk>/", views.DoctorDetailView.as_view()),
+    path('appointments/', views.AppointmentListCreateView.as_view()),
+    path("appointments/<int:pk>/", views.AppointmentDetailView.as_view()),
     path('login/', views.api_login, name='api_login'),
     path('logout/', views.api_logout, name='api_logout'),
     path('register/', views.api_register, name='api_register'),

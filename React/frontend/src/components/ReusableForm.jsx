@@ -44,20 +44,21 @@ const ReusableForm = ({ fields, formData, setFormData, onSubmit, submitLabel = "
             {field.prefix && <InputGroup.Text>{field.prefix}</InputGroup.Text>}
 
             {field.type === "select" ? (
-              <Form.Select
-                name={field.name}
-                value={formData[field.name] || ""}
-                onChange={handleChange}
-                disabled={field.readOnly}
-                isInvalid={!!errors[field.name]}
-              >
-                <option value="">Select {field.label}</option>
-                {field.choices?.map((choice) => (
-                  <option key={choice.value} value={choice.value}>
-                    {choice.label}
-                  </option>
-                ))}
-              </Form.Select>
+                <Form.Select
+                    name={field.name}
+                    value={formData[field.name] || ""}
+                    onChange={handleChange}
+                    disabled={field.readOnly}
+                    isInvalid={!!errors[field.name]}
+                >
+                    <option value="">Select {field.label}</option>
+                    {(field.options || field.choices || []).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                    </option>
+                    ))}
+                </Form.Select>
+
             ) : field.type === "textarea" ? (
               <Form.Control
                 as="textarea"

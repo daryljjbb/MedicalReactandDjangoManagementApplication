@@ -58,7 +58,7 @@ class MedicalRecord(models.Model):
 # ------------------------------------------------------------
 class Doctor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     specialization = models.CharField(max_length=100, blank=True, null=True)
@@ -68,3 +68,25 @@ class Doctor(models.Model):
     def __str__(self):
         return f"Dr. {self.first_name} {self.last_name}"
 
+
+# ------------------------------------------------------------
+# Appointment Model - for scheduling patient visits
+# ------------------------------------------------------------
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ("Scheduled", "Scheduled"),
+        ("Completed", "Completed"),
+        ("Cancelled", "Cancelled"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="appointments")
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, related_name="appointments")
+    appointment_date = models.DateTimeField()
+    reason = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Scheduled")
+    notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.patient} - {self.appointment_date.strftime('%Y-%m-%d %H:%M')}"

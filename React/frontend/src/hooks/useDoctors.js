@@ -13,7 +13,8 @@ const useDoctors = (doctorId = null) => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
- const [ordering, setOrdering] = useState("record_date");
+ const [ordering, setOrdering] = useState("first_name");
+
 
  const { isAuthenticated } = useAuth();
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Patient, MedicalRecord, Doctor
+from .models import Patient, MedicalRecord, Doctor, Appointment
 
 # ----------------------------------------------------------------
 # Patient Serializer
@@ -32,5 +32,20 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = "__all__"  # includes all model fields automatically
+        read_only_fields = ["user"]
+
+
+
+# ----------------------------------------------------------------
+# Appointment Serializer
+# ----------------------------------------------------------------
+class AppointmentSerializer(serializers.ModelSerializer):
+    # Add readable names for doctor and patient
+    patient_name = serializers.CharField(source="patient.__str__", read_only=True)
+    doctor_name = serializers.CharField(source="doctor.__str__", read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = "__all__"  # includes patient, doctor, date, status, etc.
         read_only_fields = ["user"]
 

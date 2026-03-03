@@ -6,13 +6,13 @@ from rest_framework import filters # 1. Make sure this is imported
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
-from .models import Patient, MedicalRecord, Doctor
+from .models import Patient, MedicalRecord, Doctor, Appointment
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import PatientSerializer, MedicalRecordSerializer, DoctorSerializer
+from .serializers import PatientSerializer, MedicalRecordSerializer, DoctorSerializer, AppointmentSerializer
 from rest_framework import viewsets
 
 # Create your views here.
@@ -157,6 +157,33 @@ class DoctorDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
+# -------------------------------
+# Appointment ViewSet
+# -------------------------------
+class AppointmentListCreateView(generics.ListCreateAPIView):
+    serializer_class = AppointmentSerializer
+    queryset = Appointment.objects.all()
+
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        patient_id = self.request.query_params.get('patient')
+        if patient_id:
+            queryset = queryset.filter(patient_id=patient_id).order_by('-appointment_date')
+        return queryset
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = ["status", "appointment_date"]
+    ordering_fields = ["appointment_date"]
+    filterset_fields = ["patient"]  # ⭐ THIS IS REQUIRED To be under the specific patient it belongs to
+
+class AppointmentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
 
 
 @api_view(["GET"])

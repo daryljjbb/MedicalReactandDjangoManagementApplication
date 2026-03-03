@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 
 import OverviewTab from '../components/Tabs/OverviewTab';
 import MedicalRecordsTab from '../components/Tabs/MedicalRecordsTab';
+import AppointmentsTab from '../components/Tabs/AppointmentsTab';
 import { Button } from "react-bootstrap";
 import { Nav } from "react-bootstrap";
 
@@ -58,6 +59,9 @@ export default function PatientDetailPage() {
         <Nav.Item>
             <Nav.Link eventKey="records">Medical Records</Nav.Link>
         </Nav.Item>
+         <Nav.Item>
+            <Nav.Link eventKey="appointments">Appointments</Nav.Link>
+        </Nav.Item>
         </Nav>
 
 
@@ -66,6 +70,7 @@ export default function PatientDetailPage() {
         {activeTab === "overview" && <OverviewTab patient={patient} />}
         {activeTab === "records" && <MedicalRecordsTab
          patient={patient} />}
+        {activeTab === "appointments" && <AppointmentsTab patient={patient} />}
       </div>
     </div>
   );
